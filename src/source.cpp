@@ -2,9 +2,9 @@
 #include "olcPixelGameEngine.h"
 
 struct gameObject {
-	olc::vi2d size;
-	olc::vf2d velocity;
-	olc::vf2d position;
+    olc::vi2d size;
+    olc::vf2d velocity;
+    olc::vf2d position;
 };
 
 class olc_RelayRace : public olc::PixelGameEngine
@@ -15,40 +15,43 @@ public:
         sAppName = "RelayRace";
     }
 
-	olc::Renderable level;
-	gameObject player, camera;
-	olc::vi2d tileSize, visibleTiles, worldSize; // 212 x 14
+    olc::Renderable level;
+    gameObject player, camera;
+    olc::vi2d tileSize, visibleTiles, worldSize; // 212 x 14
 
 public:
     bool OnUserCreate() override
     {
-		level.Load("../../src/20592_rev.png");
+        level.Load("../../src/20592_rev.png");
 
 
-		player.position = { (float)worldSize.x - 4, 0.0f };
-		player.size = { 16, 32 };
-		player.velocity = { 36.0f, 0.0f };
+        player.position = { (float)worldSize.x-4, 0.0f };
+        player.size = { 16, 32 };
+        player.velocity = { 36.0f, 0.0f };
 
-		camera.position = { 0.0f, 0.0f };
-		tileSize = { 16, 16 };
-		worldSize = { 212, 14 };
-		visibleTiles = { ScreenWidth() / tileSize.x, ScreenHeight() / tileSize.y };
+        camera.position = { 0.0f, 0.0f };
+        tileSize = { 16, 16 };
+        worldSize = { 212, 14 };
+        visibleTiles = { ScreenWidth() / tileSize.x, ScreenHeight() / tileSize.y };
 
-		return true;
+        return true;
     }
 
     bool OnUserUpdate(float fElapsedTime) override
     {
-		DrawDecal({ 0.0f, 0.0f }, level.Decal());
+        DrawDecal({ camera.position.x*-16, 0.0f }, level.Decal());
+        if (player.position.x < 320) {
+            camera.position.x -= 1;
+            
+        }
+        // move character
+        if (GetKey(olc::Key::LEFT).bHeld) {
+            player.position -= player.velocity * fElapsedTime;
+        } else if (GetKey(olc::Key::RIGHT).bHeld) {
+            player.position += player.velocity * fElapsedTime;
+        }
 
-		// move character
-		if (GetKey(olc::Key::LEFT).bHeld) {
-			player.position -= player.velocity * fElapsedTime;
-		} else if (GetKey(olc::Key::RIGHT).bHeld) {
-			player.position += player.velocity * fElapsedTime;
-		}
-
-		FillRectDecal({ player.position.x, (float)ScreenHeight() - 56}, player.size);
+        FillRectDecal({ 640 - player.position.x, (float)ScreenHeight() - 56}, player.size);
         
         return !GetKey(olc::Key::ESCAPE).bPressed;
     }
